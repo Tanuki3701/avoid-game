@@ -5,35 +5,45 @@ const highScoreElement = document.getElementById("highScore");
 const startBtn = document.getElementById("startBtn");
 const restartBtn = document.getElementById("restartBtn");
 
-let playerX = 180; // 玩家初始位置
-let score = 0; // 當前分數
-let highScore = 0; // 最高分紀錄
-let gameOver = false; // 是否遊戲結束
-let blockInterval, scoreInterval; // 計時器
+let playerX = 180;
+let score = 0;
+let highScore = 0;
+let gameOver = false;
+let blockInterval, scoreInterval, speed = 5;
 
 // 玩家左右移動
 document.addEventListener("keydown", (e) => {
   if (gameOver) return;
   if (e.key === "ArrowLeft" && playerX > 0) {
-    playerX -= 20;
+    playerX -= 40;
   } else if (e.key === "ArrowRight" && playerX < 360) {
-    playerX += 20;
+    playerX += 40;
   }
   player.style.left = playerX + "px";
 });
 
-// 生成掉落方塊
+// 生成不同顏色方塊
 function createBlock() {
   if (gameOver) return;
   const block = document.createElement("div");
   block.classList.add("block");
+
+  const rand = Math.random();
+  if (rand < 0.6) {
+    block.classList.add("red"); // 60% 紅色 (危險)
+  } else if (rand < 0.85) {
+    block.classList.add("green"); // 25% 綠色 (+10分)
+  } else {
+    block.classList.add("yellow"); // 15% 黃色 (-5分)
+  }
+
   block.style.left = Math.floor(Math.random() * 10) * 40 + "px";
   block.style.top = "0px";
   gameArea.appendChild(block);
   moveBlock(block);
 }
 
-// 方塊下落
+// 方塊下落 + 碰撞檢查
 function moveBlock(block) {
   let blockInterval = setInterval(() => {
     if (gameOver) {
@@ -42,18 +52,34 @@ function moveBlock(block) {
     }
 
     let blockTop = parseInt(block.style.top);
-    block.style.top = blockTop + 5 + "px";
+    block.style.top = blockTop + speed + "px";
 
-    // 檢查是否撞到玩家
+    // 碰撞範圍檢查
+    let playerRect = player.getBoundingClientRect();
+    let blockRect = block.getBoundingClientRect();
+
     if (
-      blockTop >= 550 &&
-      parseInt(block.style.left) === playerX
+      blockRect.bottom > playerRect.top &&
+      blockRect.top < playerRect.bottom &&
+      blockRect.left < playerRect.right &&
+      blockRect.right > playerRect.left
     ) {
-      endGame();
-      clearInterval(blockInterval);
+      if (block.classList.contains("red")) {
+        endGame();
+      } else if (block.classList.contains("green")) {
+        score += 10;
+        updateScoreDisplay();
+        block.remove();
+        clearInterval(blockInterval);
+      } else if (block.classList.contains("yellow")) {
+        score = Math.max(0, score - 5);
+        updateScoreDisplay();
+        block.remove();
+        clearInterval(blockInterval);
+      }
     }
 
-    // 超出畫面就刪除
+    // 超出畫面刪除
     if (blockTop > 600) {
       block.remove();
       clearInterval(blockInterval);
@@ -65,14 +91,24 @@ function moveBlock(block) {
 function updateScore() {
   if (gameOver) return;
   score++;
-  scoreElement.textContent = "分數: " + score;
+  updateScoreDisplay();
+
+  // 遊戲時間越久，下落速度增加
+  if (score % 100 === 0) {
+    speed++;
+  }
+}
+
+function updateScoreDisplay() {
+  scoreElement.textContent = "Score: " + score;
 }
 
 // 遊戲開始
 function startGame() {
   resetGame();
   gameOver = false;
-  scoreInterval = setInterval(updateScore, 100); 
+  speed = 5;
+  scoreInterval = setInterval(updateScore, 100);
   blockInterval = setInterval(createBlock, 1000);
   startBtn.style.display = "none";
   restartBtn.style.display = "none";
@@ -84,13 +120,12 @@ function endGame() {
   clearInterval(blockInterval);
   clearInterval(scoreInterval);
 
-  // 更新最高分
   if (score > highScore) {
     highScore = score;
-    highScoreElement.textContent = "最高分: " + highScore;
+    highScoreElement.textContent = "High Score: " + highScore;
   }
 
-  alert("遊戲結束！你的分數是: " + score);
+  alert("Game Over! Your score is: " + score);
   restartBtn.style.display = "inline-block";
 }
 
@@ -99,11 +134,10 @@ function resetGame() {
   playerX = 180;
   player.style.left = playerX + "px";
   score = 0;
-  scoreElement.textContent = "分數: 0";
-  // 清除場上的所有方塊
+  updateScoreDisplay();
   document.querySelectorAll(".block").forEach(b => b.remove());
 }
 
-// 綁定按鈕事件
+// 綁定按鈕
 startBtn.addEventListener("click", startGame);
 restartBtn.addEventListener("click", startGame);

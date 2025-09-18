@@ -1,19 +1,27 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>躲避方塊遊戲</title>
+  <title>Avoid Game</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Pixel Font (Press Start 2P) -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>躲避方塊遊戲</h1>
+  <h1>Avoid Game</h1>
+  <div id="scoreBoard">
+    <p id="score">Score: 0</p>
+    <p id="highScore">High Score: 0</p>
+  </div>
+
   <div id="gameArea">
     <div id="player"></div>
   </div>
-  <p id="score">分數: 0</p>
-  <p id="highScore">最高分: 0</p>
-  <button id="startBtn">開始遊戲</button>
-  <button id="restartBtn" style="display:none;">重玩</button>
+
+  <div id="controls">
+    <button id="startBtn">Start Game</button>
+    <button id="restartBtn" style="display:none;">Restart</button>
+  </div>
 
   <script src="script.js"></script>
 </body>
