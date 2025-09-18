@@ -44,7 +44,7 @@ Score increases over time, and high score will be saved.
 
 ## 🚀 線上遊戲 (Play Online)
 
-👉 [點此開始遊戲 (Play Here)](https://你的github帳號.github.io/avoid-game)
+👉 [點此開始遊戲 (Play Here)](https://tanuki3701.github.io/avoid-game/)
 
 ---
 
